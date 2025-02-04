@@ -8,7 +8,37 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-app.post('/api/v1/tours', (req, res) => {
+const getAllTours = (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      tours,
+    },
+  });
+};
+
+const getTourById = (req, res) => {
+  const id = +req.params.id;
+
+  const tour = tours.find((el) => el.id === id);
+
+  if (!tour) {
+    return res.status(404).json({
+      status: 'failed',
+      message: 'Invalid id',
+    });
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour,
+    },
+  });
+};
+
+const createTour = (req, res) => {
   console.log(req.body);
   const newId = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({ id: newId }, req.body);
@@ -26,17 +56,51 @@ app.post('/api/v1/tours', (req, res) => {
       });
     }
   );
-});
+};
 
-app.get('/api/v1/tours', (req, res) => {
+const updateTour = (req, res) => {
+  if (!tours.some((tour) => tour.id === +req.params.id)) {
+    return res.status(404).json({
+      status: 'failed',
+      message: 'Invalid id',
+    });
+  }
+
   res.status(200).json({
     status: 'success',
-    results: tours.length,
     data: {
-      tours,
+      tour: '<Updated tour...>',
     },
   });
-});
+};
+
+const deleteTour = (req, res) => {
+  if (!tours.some((tour) => tour.id === +req.params.id)) {
+    res.status(404).json({
+      status: 'failed',
+      message: 'Invalid id',
+    });
+  }
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+};
+
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+
+app
+  .route('/api/v1/tours/:id')
+  .get(getTourById)
+  .patch(updateTour)
+  .delete(deleteTour);
+
+// app.get('/api/v1/tours', getAllTours);
+// app.get('/api/v1/tours/:id', getToutById);
+// app.post('/api/v1/tours', createTour);
+// app.patch('/api/v1/tours/:id', updateTour);
+// app.delete('/api/v1/tours/:id', deleteTour);
 
 const port = 3001;
 app.listen(port, () => {
