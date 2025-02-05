@@ -4,11 +4,12 @@
   "description": "Node, Express, MongoDB",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app"
+    "start": "nodemon server.js"
   },
   "author": "yurii",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "morgan": "^1.10.0"
   }
 }
