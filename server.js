@@ -4,13 +4,14 @@ const mongoose = require('mongoose');
 
 dotenv.config({ path: './.env' });
 
+//hosted DB
 const db = process.env.MONGO_DB_URL.replace(
   '<db_password>',
   process.env.MONGO_DB_PASS
 );
 
 mongoose
-  .connect(db, {
+  .connect(process.env.MONGO_DB_LOCAL, {
     useNewUrlParser: true,
   })
   .then(() => console.log('Database successfully conected...'));
