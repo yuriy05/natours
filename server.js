@@ -11,7 +11,7 @@ const db = process.env.MONGO_DB_URL.replace(
 );
 
 mongoose
-  .connect(process.env.MONGO_DB_LOCAL, {
+  .connect(db, {
     useNewUrlParser: true,
   })
   .then(() => console.log('Database successfully conected...'));
