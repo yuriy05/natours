@@ -1,8 +1,9 @@
-const dotenv = require('dotenv');
-const app = require('./app');
 const mongoose = require('mongoose');
 
+const dotenv = require('dotenv');
 dotenv.config({ path: './.env' });
+
+const app = require('./app');
 
 //hosted DB
 const db = process.env.MONGO_DB_URL.replace(

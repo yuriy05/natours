@@ -12,9 +12,29 @@ exports.checkBody = (req, res, next) => {
 };
 
 exports.getAllTours = async (req, res) => {
+  console.log(req.query);
   try {
-    const tours = await Tour.find();
+    //! Here we build the query
+    const queryObj = { ...req.query };
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach((el) => delete queryObj[el]);
 
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|lte|gt|lt)\b/g, (match) => `$${match}`);
+    console.log(JSON.parse(queryStr));
+
+    const query = Tour.find(JSON.parse(queryStr));
+
+    // const tours = await Tour.find()
+    //   .where('duration')
+    //   .equals(5)
+    //   .where('difficulty')
+    //   .equals('easy');
+
+    //! Execute query
+    const tours = await query;
+
+    //* Send response
     res.status(200).json({
       status: 'success',
       results: tours.length,
