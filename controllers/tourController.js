@@ -28,15 +28,31 @@ exports.getAllTours = async (req, res) => {
     if (req.query.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
       query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt');
     }
 
+    //* lIMITING
     if (req.query.fields) {
       const fields = req.query.fields.split(',').join(' ');
       query = query.select(fields);
     } else {
       query = query.select('-__v');
+    }
+
+    //* PAGINATION
+
+    const page = +req.query.page || 1;
+    const limit = +req.query.limit || 3;
+    const skip = (page - 1) * limit;
+
+    console.log(page, limit, skip, 'page | limit | skip');
+
+    query = query.skip(skip).limit(limit);
+    console.log(req.query);
+
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+
+      if (skip >= numTours) throw new Error('Page does not exist');
     }
 
     // const tours = await Tour.find()
@@ -45,7 +61,7 @@ exports.getAllTours = async (req, res) => {
     //   .where('difficulty')
     //   .equals('easy');
 
-    //! Execute query
+    //* Execute query
     const tours = await query;
 
     //* Send response
