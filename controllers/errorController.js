@@ -17,12 +17,20 @@ function handleValidationDBError(err) {
   return new AppError(message, 400);
 }
 
+function handleJWTToken(err) {
+  return new AppError('Invalid token, please try again', 401);
+}
+
+function handleJWTExpiredError(err) {
+  return new AppError('Your token has expired, please log in again', 401);
+}
+
 function sendErrorDev(err, res) {
   res.status(err.statusCode).json({
     status: err.status,
     error: err,
-    stack: err.stack,
     message: err.message,
+    stack: err.stack,
   });
 }
 
@@ -58,7 +66,8 @@ module.exports = (err, req, res, next) => {
       ...err,
       name: err.name,
       errmsg: err.errmsg,
-      validationErrors: err.errors.name,
+      message: err.message,
+      // validationErrors: err.errors.name,
     };
 
     if (error.name === 'CastError') {
@@ -71,6 +80,14 @@ module.exports = (err, req, res, next) => {
 
     if (error.name === 'ValidationError') {
       error = handleValidationDBError(error);
+    }
+
+    if (error.name === 'JsonWebTokenError') {
+      error = handleJWTToken(error);
+    }
+
+    if (error.name === 'TokenExpiredError') {
+      error = handleJWTExpiredError(error);
     }
 
     sendErrorProd(error, res);
