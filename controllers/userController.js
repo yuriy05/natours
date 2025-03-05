@@ -39,20 +39,3 @@ exports.deleteUser = (req, res) => {
   });
 };
 
-exports.forgotPassword = catchAsync(async (req, res, next) => {
-  // get user by POSTed email
-  const user = await User.findOne({ email: req.body.email });
-
-  if (!user) {
-    return next(new AppError('There is no user with this email', 404));
-  }
-
-  // generate random reset token
-  const resetToken = await user.createPasswordResetToken();
-
-  await user.save({ validateBeforeSave: false });
-
-  // send back as email
-});
-
-exports.resetPassword = (req, res, next) => {};
