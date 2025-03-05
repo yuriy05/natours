@@ -207,3 +207,34 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     token,
   });
 });
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  //Get a user
+  const user = await User.findById(req.user.id).select('+password');
+
+  if (!user) {
+    return next(new AppError('User does not exist', 400));
+  }
+
+  //Check if POSTed password is correct
+
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    return next(new AppError('Your current password is wrong', 401));
+  }
+
+  //update user password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+
+  //User.findByIdandUpdate will nor work as intended
+
+  await user.save();
+
+  //login user and send JWT
+  const token = signToken(user._id);
+
+  res.status(200).json({
+    status: 'success',
+    token,
+  });
+});
